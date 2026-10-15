@@ -3,6 +3,8 @@
 const $ = (id) => document.getElementById(id);
 const currency = (cents) => new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(cents / 100);
 const escapeHTML = (value) => String(value).replace(/[&<>"']/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+// Keep the original storage keys so the rename preserves saved trips and mode.
+const STORAGE_KEYS = {mode: "wayfarer-mode", trip: "wayfarer-trip"};
 let config, trip, working = false, pendingOption;
 const statusLabels = {draft: "Ready to explore", quoted: "Options ready", no_options: "Let’s adjust the brief", needs_approval: "Price changed · review again", sold_out: "Flight sold out · search again", partial: "Partially reserved", booked: "Trip confirmed", cancelled: "Reservations cancelled"};
 
@@ -64,7 +66,7 @@ function render() {
     item.className = "message " + (m.role === "user" ? "user" : "assistant");
     const name = document.createElement("span");
     name.className = "speaker";
-    name.textContent = m.role === "user" ? "YOU" : "WAYFARER";
+    name.textContent = m.role === "user" ? "YOU" : "PROMPT ESCAPES";
     const content = document.createElement("span");
     content.textContent = m.content;
     item.append(name, content);
@@ -93,11 +95,11 @@ function setMode() {
   $("mode-description").textContent = ai ? `OpenAI · ${config.model}` : "Scripted demo · no model calls";
   if (ai && !config.ai_available) notify("AI mode needs OPENAI_API_KEY in the server’s launch environment. Scripted demo mode works without a key.");
   else notify("");
-  localStorage.setItem("wayfarer-mode", $("mode").value);
+  localStorage.setItem(STORAGE_KEYS.mode, $("mode").value);
 }
 async function startTrip(scenario) {
   trip = await api("/api/trips", {scenario});
-  localStorage.setItem("wayfarer-trip", trip.id);
+  localStorage.setItem(STORAGE_KEYS.trip, trip.id);
   render();
 }
 
@@ -172,11 +174,11 @@ async function init() {
     for (const [code, name] of Object.entries(config.cities)) $(id).add(new Option(`${name} (${code})`, code));
   }
   $("departure").min = new Date().toLocaleDateString("en-CA");
-  $("mode").value = localStorage.getItem("wayfarer-mode") || (config.ai_available ? "ai" : "demo");
+  $("mode").value = localStorage.getItem(STORAGE_KEYS.mode) || (config.ai_available ? "ai" : "demo");
   setMode();
-  const saved = localStorage.getItem("wayfarer-trip");
+  const saved = localStorage.getItem(STORAGE_KEYS.trip);
   if (saved) {
-    try { trip = await api(`/api/trips/${saved}`); } catch (_) { localStorage.removeItem("wayfarer-trip"); }
+    try { trip = await api(`/api/trips/${saved}`); } catch (_) { localStorage.removeItem(STORAGE_KEYS.trip); }
   }
   if (!trip) await startTrip("normal");
   else render();

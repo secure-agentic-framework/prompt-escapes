@@ -1,1 +1,1 @@
-"""A local travel agent with a deterministic, fictional booking world."""
+"""Prompt Escapes: a security learning lab with a fictional travel booking world."""

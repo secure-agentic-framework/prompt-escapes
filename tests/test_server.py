@@ -89,7 +89,7 @@ class ServerTests(unittest.TestCase):
     def test_static_page_and_security_headers(self):
         with urllib.request.urlopen(self.base, timeout=5) as response:
             self.assertEqual(response.status, 200)
-            self.assertIn("Wayfarer", response.read().decode())
+            self.assertIn("Prompt Escapes", response.read().decode())
             self.assertIn("script-src 'self'", response.headers["Content-Security-Policy"])
             self.assertEqual(response.headers["Cache-Control"], "no-store")
 

@@ -1,6 +1,14 @@
-# Wayfarer
+# Prompt Escapes
 
-A local travel-agent playground: chat with an agent, compare fictional flight-and-hotel packages, approve an exact quote, and inspect the resulting saved reservations and tool activity.
+Your next getaway is just a prompt away.
+
+A local security learning lab built around an AI travel agent. Chat with the agent, compare fictional flight-and-hotel packages, approve an exact quote, and inspect the resulting saved reservations and tool activity.
+
+## Learning-lab direction
+
+Prompt Escapes is inspired by [OWASP Juice Shop](https://owasp.org/projects/juice-shop), a deliberately insecure application for security training. The teaching setting here is an AI agent arranging travel: learner exercises can explore prompt injection, tool permissions, access to other travelers’ records, and booking approval boundaries.
+
+The current build provides the working travel simulator and its baseline controls. Intentional vulnerability challenges, hints, completion checks, and a scoreboard have not been implemented yet. The existing recovery scenarios exercise booking failures; they are separate from security challenges.
 
 ## Run
 

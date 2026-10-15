@@ -1,4 +1,6 @@
-# Travel Agent
+# Prompt Escapes
+
+A local security learning lab built around an AI travel booking simulator, inspired by OWASP Juice Shop.
 
 Use `bd` for issue tracking. Run `bd ready --json` before claiming work.
 

@@ -132,12 +132,12 @@ def make_server(host, port, db_path):
 
 if __name__ == "__main__":
     load_env(ROOT / ".env")
-    parser = argparse.ArgumentParser(description="Local fictional travel agent")
+    parser = argparse.ArgumentParser(description="Prompt Escapes — local AI security learning lab")
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--db", type=Path, default=ROOT / "data" / "travel.sqlite3")
     args = parser.parse_args()
     server = make_server("127.0.0.1", args.port, args.db)
-    print("Wayfarer is running at http://127.0.0.1:{}".format(server.server_port), flush=True)
+    print("Prompt Escapes is running at http://127.0.0.1:{}".format(server.server_port), flush=True)
     print("AI mode: " + ("enabled" if os.environ.get("OPENAI_API_KEY") else "key not visible; scripted demo available"), flush=True)
     try:
         server.serve_forever()
