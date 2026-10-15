@@ -139,6 +139,7 @@ class Store:
             validate_profile(profile)
             state["profile"] = profile
             state["options"] = []
+            state.pop("recommendation", None)
             state["approved"] = None
             state["status"] = "draft"
             event(state, "update_trip", "ok", "Trip brief updated; previous quotes invalidated.")
@@ -192,6 +193,7 @@ class Store:
                                     "profile": copy.deepcopy(profile), "status": "available"})
             options.sort(key=lambda item: item["total_cents"])
             state["options"] = options[:3]
+            state.pop("recommendation", None)
             state["approved"] = None
             state["status"] = "quoted" if options else "no_options"
             event(state, "search_flights", "ok", "Searched fictional round-trip inventory for " + profile["origin"] + " → " + profile["destination"] + ".")

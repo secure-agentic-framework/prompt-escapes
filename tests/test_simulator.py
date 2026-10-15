@@ -198,7 +198,7 @@ class AgentTests(StoreTestCase):
             return {"output": [{"type": "function_call", "name": "get_trip", "arguments": "{}", "call_id": str(len(calls))}]}
         with self.assertRaises(AgentError):
             Agent(self.store, request=fake).respond(trip["id"], "Keep going forever", "ai")
-        self.assertEqual(len(calls), 8)
+        self.assertEqual(len(calls), 12)
         self.assertEqual(self.store.get(trip["id"])["reservations"], [])
 
     def test_invalid_tool_arguments_are_returned_to_model(self):

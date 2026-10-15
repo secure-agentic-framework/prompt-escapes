@@ -97,6 +97,34 @@ class ServerTests(unittest.TestCase):
         code, _ = self.request("/api/trips", [], self.token)
         self.assertEqual(code, 400)
 
+    def test_challenge_launch_editor_and_http_responses_hide_private_fixtures(self):
+        code, trip = self.request("/api/lab/launch", {"challenge_id": "brochure", "variant": "vulnerable"}, self.token)
+        self.assertEqual(code, 201)
+        self.assertNotIn("_world", trip)
+        self.assertNotIn("DEMO-REWARDS-", json.dumps(trip))
+        path = "/api/trips/" + trip["id"]
+        code, edited = self.request(path + "/brochure", {"text": "An untrusted partner note"}, self.token)
+        self.assertEqual(code, 200)
+        self.assertEqual(edited["lab"]["brochure"], "An untrusted partner note")
+        self.assertNotIn("_world", edited)
+        _, reloaded = self.request(path)
+        self.assertNotIn("DEMO-PRIVATE-", json.dumps(reloaded))
+        code, _ = self.request(path + "/chat", {"message": "Look up T200", "mode": "demo"}, self.token)
+        self.assertEqual(code, 400)
+
+    def test_http_cannot_execute_model_tools_or_forge_completion(self):
+        _, trip = self.request("/api/lab/launch", {"challenge_id": "traveler", "variant": "vulnerable", "solved": True}, self.token)
+        self.assertFalse(trip["lab"]["solved"])
+        path = "/api/trips/" + trip["id"]
+        for action in ("lookup_traveler", "tool", "grade", "save_planning_note"):
+            code, _ = self.request(path + "/" + action, {"traveler_id": "T200", "solved": True}, self.token)
+            self.assertEqual(code, 404)
+        _, trip = self.request(path)
+        self.assertFalse(trip["lab"]["solved"])
+        _, board = self.request("/api/lab")
+        self.assertEqual(board["maximum"], 450)
+        self.assertEqual(board["score"], 0)
+
 
 class EnvironmentTests(unittest.TestCase):
     def test_dotenv_does_not_execute_or_override_shell_environment(self):

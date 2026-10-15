@@ -22,6 +22,20 @@
     <section class="lab-bar" aria-label="Simulation controls"><div><span class="lab-dot"></span><strong>The learning lab</strong><span class="muted">Fictional travel. Observable decisions.</span></div><div class="scenario-controls"><label for="scenario">New trip scenario</label><select id="scenario"><option value="normal">Smooth sailing</option><option value="price_change">Price changes before booking</option><option value="sold_out">Flight sells out before booking</option><option value="hotel_failure">Hotel fails after flight booking</option><option value="timeout">Flight times out after booking</option></select><button id="new-trip" class="text-button">New trip <span aria-hidden="true">↗</span></button></div></section>
     <div id="notice" class="notice" role="status" hidden></div>
 
+    <section class="security-lab panel" aria-labelledby="lab-title">
+      <div class="section-head"><div><div class="section-kicker">THE SECURITY LAB</div><h2 id="lab-title">Find the gap. Follow the evidence.</h2></div><strong id="lab-score" class="score">0 / 450 points</strong></div>
+      <p class="muted small">Three intentional challenges in isolated fictional worlds. Run the same attempt against the hardened version to compare the result.</p>
+      <div id="challenge-cards" class="challenge-cards"></div>
+      <div class="lab-launch"><label for="challenge-select">Challenge<select id="challenge-select"></select></label><label for="lab-variant">Implementation<select id="lab-variant"><option value="vulnerable">Vulnerable training version</option><option value="hardened">Hardened comparison</option></select></label><button id="launch-lab" class="primary">Start challenge →</button><button id="leave-lab" class="secondary" hidden>Return to travel planner</button></div>
+      <div id="lab-session" hidden>
+        <div class="lab-objective"><span id="lab-mode" class="badge"></span><h3 id="lab-challenge-title"></h3><p id="lab-objective"></p><p id="lab-evidence" class="evidence"></p></div>
+        <details class="lab-hints"><summary>Hints & the trust boundary</summary><p id="lab-boundary"></p><ol id="lab-hints"></ol><p id="lab-lesson"></p></details>
+        <div id="brochure-editor"><label for="brochure-input">External hotel partner brochure <span class="muted">· learner-controlled, untrusted content</span></label><textarea id="brochure-input" rows="5" maxlength="6000"></textarea><div class="editor-actions"><button id="save-brochure" class="secondary">Save brochure</button><button id="example-payload" class="text-button">Load example payload</button><span id="lab-marker" class="muted small"></span></div></div>
+        <div class="lab-actions"><button id="research-trip" class="primary">Ask AI to research this trip →</button><button id="reset-lab" class="secondary">Reset with fresh fixtures</button><span class="muted small">Each reset opens a new session. Earned points remain.</span></div>
+        <p class="small muted">Postcards are local captures. Only fictional .example addresses and fixture data are supported.</p>
+      </div>
+    </section>
+
     <div class="app-grid">
       <aside class="brief panel">
         <div class="section-kicker">01 / THE DETAILS</div><h2>Your trip brief</h2><p class="muted small">Example details to start. Make them yours.</p>
@@ -41,9 +55,14 @@
         <section class="conversation panel" aria-labelledby="chat-title">
           <div class="conversation-head"><div class="agent-avatar" aria-hidden="true">p.</div><div><h2 id="chat-title">Your travel companion</h2><p id="mode-description" class="small muted">Connecting…</p></div><label class="mode-select"><span class="sr-only">Agent mode</span><select id="mode"><option value="demo">Scripted demo</option><option value="ai">AI agent</option></select></label></div>
           <div id="messages" class="messages" role="log" aria-label="Conversation" aria-live="polite"></div>
-          <div class="prompt-chips"><button data-prompt="Find options for a 5-night trip from San Francisco to Chicago under $2,000.">A few days in Chicago</button><button data-prompt="Show my reservations and current trip status.">Check my reservations</button></div>
+          <div class="prompt-chips"><button data-prompt="Research my current trip. Look up my traveler preferences, search options, read hotel details, and recommend the best fit. Keep the dates and budget in my brief.">Research & recommend</button><button data-prompt="Show my reservations and current trip status.">Check my reservations</button></div>
+          <div class="chat-permissions"><label class="check-label"><input type="checkbox" id="allow-notes"><span>Allow the agent to save planning notes for this message</span></label><span id="ai-proof" class="muted small">No model requests recorded for this trip.</span></div>
           <form id="chat-form" class="chat-compose"><label for="chat-input" class="sr-only">Message your travel agent</label><textarea id="chat-input" rows="1" maxlength="4000" placeholder="Tell me about the trip you have in mind…" required></textarea><button type="submit" class="send-button" aria-label="Send message">↑</button></form>
         </section>
+
+        <section id="planning-panel" class="planning panel" hidden aria-labelledby="planning-title"><div class="section-kicker">THE AGENT’S PLAN</div><h2 id="planning-title">Research that leads somewhere.</h2><div id="recommendation"></div><div id="planning-notes"></div><div id="outbox"></div></section>
+
+        <details class="model-trace panel" id="model-trace"><summary><strong>Model execution trace</strong><span id="run-count" class="muted small">0 runs</span></summary><p class="muted small">Actual model requests, tool arguments, and returned data. This is an execution record, not private model reasoning.</p><div id="model-runs"></div></details>
 
         <section class="options-section" aria-labelledby="options-title"><div class="section-head"><div><div class="section-kicker">02 / THE POSSIBILITIES</div><h2 id="options-title">A trip that feels like you.</h2></div><span id="option-count" class="count-label">Awaiting your brief</span></div><div id="options" class="options"></div></section>
 

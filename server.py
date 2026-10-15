@@ -12,6 +12,7 @@ from urllib.parse import urlparse
 
 from travel.agent import Agent, AgentError
 from travel.simulator import CITIES, SCENARIOS, RuleError, Store
+from travel.lab import Lab, public_state
 
 ROOT = Path(__file__).resolve().parent
 
@@ -35,6 +36,7 @@ def load_env(path):
 def make_server(host, port, db_path):
     store = Store(db_path)
     agent = Agent(store)
+    lab = Lab(store)
     csrf = secrets.token_urlsafe(32)
     locks = {}
     locks_guard = threading.Lock()
@@ -69,7 +71,9 @@ def make_server(host, port, db_path):
                         "model": os.environ.get("OPENAI_MODEL", "gpt-6.1-sol"), "csrf": csrf,
                         "cities": CITIES, "scenarios": SCENARIOS})
                 if path.startswith("/api/trips/"):
-                    return self.send(200, store.get(path.split("/")[-1]))
+                    return self.send(200, public_state(store.get(path.split("/")[-1])))
+                if path == "/api/lab":
+                    return self.send(200, lab.board())
                 files = {"/": ("index.html", "text/html; charset=utf-8"),
                          "/app.js": ("app.js", "text/javascript; charset=utf-8"),
                          "/styles.css": ("styles.css", "text/css; charset=utf-8")}
@@ -95,6 +99,8 @@ def make_server(host, port, db_path):
                 parts = urlparse(self.path).path.strip("/").split("/")
                 if parts == ["api", "trips"]:
                     return self.send(201, store.create(body.get("scenario", "normal")))
+                if parts == ["api", "lab", "launch"]:
+                    return self.send(201, public_state(lab.launch(body.get("challenge_id"), body.get("variant", "vulnerable"))))
                 if len(parts) != 4 or parts[:2] != ["api", "trips"]:
                     return self.send(404, {"error": "Not found."})
                 trip_id, action = parts[2:]
@@ -106,7 +112,9 @@ def make_server(host, port, db_path):
                     elif action == "search":
                         state = store.search(trip_id)
                     elif action == "chat":
-                        state = agent.respond(trip_id, body.get("message"), body.get("mode", "demo"))
+                        state = agent.respond(trip_id, body.get("message"), body.get("mode", "demo"), body.get("allow_notes", False))
+                    elif action == "brochure":
+                        state = lab.edit_brochure(trip_id, body.get("text"))
                     elif action == "book":
                         if body.get("approved") is not True:
                             raise RuleError("Explicit approval is required before booking.")
@@ -117,7 +125,7 @@ def make_server(host, port, db_path):
                         state = store.cancel(trip_id, body.get("reservation_id"))
                     else:
                         return self.send(404, {"error": "Unknown action."})
-                return self.send(200, state)
+                return self.send(200, public_state(state))
             except (RuleError, ValueError, TypeError, KeyError) as exc:
                 return self.send(400, {"error": str(exc)})
             except AgentError as exc:
