@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="A local AI travel agent playground with fictional flights, hotels, and reservations.">
+  <title>Wayfarer — Travel agent lab</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Wayfarer home"><span class="brand-mark" aria-hidden="true">w.</span><span>wayfarer<span class="brand-sub">TRAVEL AGENT LAB</span></span></a>
+    <div class="header-right"><span class="status-dot"></span><span>A world of possibilities. All simulated.</span><span class="local-tag">LOCAL EDITION</span></div>
+  </header>
+  <main>
+    <section class="hero">
+      <div><p class="eyebrow">YOUR NEXT CHAPTER, ARRANGED.</p><h1>Less logistics.<br><em>More possibility.</em></h1><p class="hero-copy">Meet your travel agent. Shape a trip together,<br class="desktop-break"> explore the tradeoffs, and see the plan come to life.</p></div>
+      <div class="postcard" aria-hidden="true"><div class="postcard-top"><span>THE ART OF GETTING THERE</span><span>01 / ∞</span></div><svg viewBox="0 0 420 155" fill="none"><path d="M12 130C75 127 67 32 137 32s34 115 117 94S302 6 405 17" stroke="#69775c" stroke-width="1.5" stroke-dasharray="5 7"/><circle cx="12" cy="130" r="5" fill="#bd603e"/><circle cx="405" cy="17" r="5" fill="#bd603e"/><path d="m212 93 29-7-10-26 6-3 17 25 25-6c5-1 9 0 10 3s-2 5-7 7l-25 8-2 30-6 2-4-28-28 9 2 11-5 1-9-15-1-12 5-2z" fill="#213b3c"/></svg><div class="postcard-bottom"><span>Somewhere new is calling.</span><span class="stamp">SIMULATED<br>WITH CARE</span></div></div>
+    </section>
+
+    <section class="lab-bar" aria-label="Simulation controls"><div><span class="lab-dot"></span><strong>The playground</strong><span class="muted">Fictional inventory. Real decisions.</span></div><div class="scenario-controls"><label for="scenario">New trip scenario</label><select id="scenario"><option value="normal">Smooth sailing</option><option value="price_change">Price changes before booking</option><option value="sold_out">Flight sells out before booking</option><option value="hotel_failure">Hotel fails after flight booking</option><option value="timeout">Flight times out after booking</option></select><button id="new-trip" class="text-button">New trip <span aria-hidden="true">↗</span></button></div></section>
+    <div id="notice" class="notice" role="status" hidden></div>
+
+    <div class="app-grid">
+      <aside class="brief panel">
+        <div class="section-kicker">01 / THE DETAILS</div><h2>Your trip brief</h2><p class="muted small">Example details to start. Make them yours.</p>
+        <form id="brief-form">
+          <label for="origin">Flying from</label><select id="origin" name="origin" required></select>
+          <label for="destination">Heading to</label><select id="destination" name="destination" required></select>
+          <div class="form-pair"><div><label for="departure">Departure</label><input type="date" id="departure" required></div><div><label for="return_date">Return</label><input type="date" id="return_date" required></div></div>
+          <div class="form-pair"><div><label for="travelers">Travelers</label><input type="number" id="travelers" min="1" max="4" value="1" required></div><div><label for="budget">Total budget · USD</label><input type="number" id="budget" min="100" max="100000" step="0.01" value="2000" required></div></div>
+          <div class="requirements"><label class="check-label"><input type="checkbox" id="nonstop" checked><span>Nonstop flights only</span></label><label class="check-label"><input type="checkbox" id="downtown" checked><span>Stay downtown</span></label></div>
+          <button class="primary full" type="submit" id="search-button">Find my options <span aria-hidden="true">→</span></button>
+        </form>
+        <div class="brief-foot"><span aria-hidden="true">⌁</span><p>Round-trip flights + one shared room.<br>1–4 travelers · 1–30 nights<br>All quotes include simulated taxes.</p></div>
+        <div class="trip-state"><span>TRIP STATUS</span><strong id="trip-status">Getting ready</strong><span id="trip-id"></span></div>
+      </aside>
+
+      <div class="workspace">
+        <section class="conversation panel" aria-labelledby="chat-title">
+          <div class="conversation-head"><div class="agent-avatar" aria-hidden="true">w.</div><div><h2 id="chat-title">Your travel companion</h2><p id="mode-description" class="small muted">Connecting…</p></div><label class="mode-select"><span class="sr-only">Agent mode</span><select id="mode"><option value="demo">Scripted demo</option><option value="ai">AI agent</option></select></label></div>
+          <div id="messages" class="messages" role="log" aria-label="Conversation" aria-live="polite"></div>
+          <div class="prompt-chips"><button data-prompt="Find options for a 5-night trip from San Francisco to Chicago under $2,000.">A few days in Chicago</button><button data-prompt="Show my reservations and current trip status.">Check my reservations</button></div>
+          <form id="chat-form" class="chat-compose"><label for="chat-input" class="sr-only">Message your travel agent</label><textarea id="chat-input" rows="1" maxlength="4000" placeholder="Tell me about the trip you have in mind…" required></textarea><button type="submit" class="send-button" aria-label="Send message">↑</button></form>
+        </section>
+
+        <section class="options-section" aria-labelledby="options-title"><div class="section-head"><div><div class="section-kicker">02 / THE POSSIBILITIES</div><h2 id="options-title">A trip that feels like you.</h2></div><span id="option-count" class="count-label">Awaiting your brief</span></div><div id="options" class="options"></div></section>
+
+        <section class="ledger panel" aria-labelledby="ledger-title"><div class="section-head"><div><div class="section-kicker">03 / SET IN MOTION</div><h2 id="ledger-title">Your reservations</h2></div><span id="reservation-count" class="count-label">0 confirmed</span></div><div id="reservations"></div></section>
+
+        <details class="activity panel" id="activity"><summary><span><span class="activity-icon" aria-hidden="true">⌘</span> Behind the journey <span class="muted small">Tool activity & recovery</span></span><span id="event-count">0 events</span></summary><ol id="events"></ol></details>
+      </div>
+    </div>
+    <footer><span class="brand-footer">wayfarer</span><p>Built for exploration. No real bookings, payments, or live travel prices.</p><span>TAKE THE SCENIC ROUTE.</span></footer>
+  </main>
+  <dialog id="approval-dialog"><form method="dialog"><p class="eyebrow">ONE LAST LOOK</p><h2>Ready to make it a plan?</h2><p id="approval-description"></p><div class="approval-total"><span>Approved total · USD</span><strong id="approval-total"></strong></div><p class="small muted">This creates fictional reservations only. If the price changes, we’ll ask you to review it again.</p><div class="dialog-actions"><button value="cancel" class="secondary">Keep exploring</button><button value="approve" class="primary">Approve & simulate booking</button></div></form></dialog>
+</body>
+</html>
