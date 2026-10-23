@@ -89,9 +89,19 @@ class ServerTests(unittest.TestCase):
     def test_static_page_and_security_headers(self):
         with urllib.request.urlopen(self.base, timeout=5) as response:
             self.assertEqual(response.status, 200)
-            self.assertIn("Prompt Escapes", response.read().decode())
+            page = response.read().decode()
+            self.assertIn("Prompt Escapes", page)
+            self.assertIn("https://github.com/secure-agentic-framework/prompt-escapes", page)
+            self.assertIn('id="lab-source"', page)
+            self.assertNotIn("points", page.lower())
             self.assertIn("script-src 'self'", response.headers["Content-Security-Policy"])
             self.assertEqual(response.headers["Cache-Control"], "no-store")
+        with urllib.request.urlopen(self.base + "/app.js", timeout=5) as response:
+            script = response.read().decode()
+        self.assertIn("[Prompt Escapes debug] Agent tool called:", script)
+        self.assertIn("Deliberately omit arguments and results", script)
+        self.assertNotIn("allow-notes", page)
+        self.assertNotIn("allow_notes", script)
 
     def test_body_shape_is_checked(self):
         code, _ = self.request("/api/trips", [], self.token)
@@ -122,8 +132,44 @@ class ServerTests(unittest.TestCase):
         _, trip = self.request(path)
         self.assertFalse(trip["lab"]["solved"])
         _, board = self.request("/api/lab")
-        self.assertEqual(board["maximum"], 450)
-        self.assertEqual(board["score"], 0)
+        self.assertEqual(board["total"], 14)
+        self.assertNotIn("score", board)
+        self.assertNotIn("maximum", board)
+        self.assertTrue(all("points" not in challenge for challenge in board["challenges"]))
+        self.assertEqual(len(board["challenges"]), 14)
+        self.assertEqual(len(board["campaigns"]), 4)
+        self.assertTrue(all({"campaign", "stage", "surface", "control", "harm", "guided_prompt", "source_label", "source_url"} <= set(challenge) for challenge in board["challenges"]))
+        self.assertTrue(all(challenge["source_url"].startswith("https://github.com/secure-agentic-framework/prompt-escapes/blob/main/") for challenge in board["challenges"]))
+        self.assertEqual({challenge["id"] for challenge in board["challenges"]},
+                         {challenge_id for campaign in board["campaigns"] for challenge_id in campaign["challenges"]})
+        self.assertEqual(board["completed"], 0)
+
+    def test_extended_editor_and_lifecycle_routes_validate_scope_and_preserve_unsolved_state(self):
+        _, memory = self.request("/api/lab/launch", {"challenge_id": "memory"}, self.token)
+        path = "/api/trips/" + memory["id"]
+        code, state = self.request(path + "/attack", {"text": memory["lab"]["example_payload"], "solved": True}, self.token)
+        self.assertEqual(code, 200)
+        code, state = self.request(path + "/conversation", {"solved": True}, self.token)
+        self.assertEqual(code, 200)
+        self.assertEqual(state["lab"]["conversation"], 2)
+        self.assertFalse(state["lab"]["solved"])
+        self.assertNotIn("_world", state)
+        code, _ = self.request(path + "/attack", {"text": "new poison"}, self.token)
+        self.assertEqual(code, 400)
+        _, mutation = self.request("/api/lab/launch", {"challenge_id": "mutation", "variant": "hardened"}, self.token)
+        path = "/api/trips/" + mutation["id"]
+        code, _ = self.request(path + "/mutate-manifest", {}, self.token)
+        self.assertEqual(code, 400)
+        code, _ = self.request(path + "/approve-manifest", {}, self.token)
+        self.assertEqual(code, 200)
+        self.request(path + "/attack", {"text": mutation["lab"]["example_payload"]}, self.token)
+        code, state = self.request(path + "/mutate-manifest", {}, self.token)
+        self.assertEqual(code, 200)
+        self.assertEqual(state["lab"]["manifest_version"], 2)
+        self.assertFalse(state["lab"]["solved"])
+        for action in ("read_fare_quote", "report_confirmation", "inspect_concierge_config", "ask_research_desk"):
+            code, _ = self.request(path + "/" + action, {}, self.token)
+            self.assertEqual(code, 404)
 
 
 class EnvironmentTests(unittest.TestCase):

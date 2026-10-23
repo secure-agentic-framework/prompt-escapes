@@ -5,3 +5,5 @@ __pycache__/
 data/
 .DS_Store
 .beads.gate.lock
+.workbook-build/
+outputs/

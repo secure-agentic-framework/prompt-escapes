@@ -11,7 +11,7 @@
 <body>
   <header class="site-header">
     <a class="brand" href="/" aria-label="Prompt Escapes home"><span class="brand-mark" aria-hidden="true">p.</span><span>Prompt Escapes<span class="brand-sub">AI SECURITY LEARNING LAB</span></span></a>
-    <div class="header-right"><span class="status-dot"></span><span>Learn security through simulated travel.</span><span class="local-tag">LOCAL EDITION</span></div>
+    <div class="header-right"><span class="status-dot"></span><span>Learn security through simulated travel.</span><a class="source-link" href="https://github.com/secure-agentic-framework/prompt-escapes" target="_blank" rel="noopener noreferrer">SOURCE ↗</a><span class="local-tag">LOCAL EDITION</span></div>
   </header>
   <main>
     <section class="hero">
@@ -23,15 +23,16 @@
     <div id="notice" class="notice" role="status" hidden></div>
 
     <section class="security-lab panel" aria-labelledby="lab-title">
-      <div class="section-head"><div><div class="section-kicker">THE SECURITY LAB</div><h2 id="lab-title">Find the gap. Follow the evidence.</h2></div><strong id="lab-score" class="score">0 / 450 points</strong></div>
-      <p class="muted small">Three intentional challenges in isolated fictional worlds. Run the same attempt against the hardened version to compare the result.</p>
+      <div class="section-head"><div><div class="section-kicker">THE SECURITY LAB</div><h2 id="lab-title">Find the gap. Follow the evidence.</h2></div><strong id="lab-progress" class="lab-progress">0 of 14 explored</strong></div>
+      <p class="muted small">Four campaigns. Fourteen intentional challenges. Trace the entry surface, the broken control, and the observable harm—then run the same attempt against the hardened version.</p>
       <div id="challenge-cards" class="challenge-cards"></div>
       <div class="lab-launch"><label for="challenge-select">Challenge<select id="challenge-select"></select></label><label for="lab-variant">Implementation<select id="lab-variant"><option value="vulnerable">Vulnerable training version</option><option value="hardened">Hardened comparison</option></select></label><button id="launch-lab" class="primary">Start challenge →</button><button id="leave-lab" class="secondary" hidden>Return to travel planner</button></div>
       <div id="lab-session" hidden>
-        <div class="lab-objective"><span id="lab-mode" class="badge"></span><h3 id="lab-challenge-title"></h3><p id="lab-objective"></p><p id="lab-evidence" class="evidence"></p></div>
-        <details class="lab-hints"><summary>Hints & the trust boundary</summary><p id="lab-boundary"></p><ol id="lab-hints"></ol><p id="lab-lesson"></p></details>
-        <div id="brochure-editor"><label for="brochure-input">External hotel partner brochure <span class="muted">· learner-controlled, untrusted content</span></label><textarea id="brochure-input" rows="5" maxlength="6000"></textarea><div class="editor-actions"><button id="save-brochure" class="secondary">Save brochure</button><button id="example-payload" class="text-button">Load example payload</button><span id="lab-marker" class="muted small"></span></div></div>
-        <div class="lab-actions"><button id="research-trip" class="primary">Ask AI to research this trip →</button><button id="reset-lab" class="secondary">Reset with fresh fixtures</button><span class="muted small">Each reset opens a new session. Earned points remain.</span></div>
+        <div class="lab-objective"><span id="lab-mode" class="badge"></span><h3 id="lab-challenge-title"></h3><p id="lab-objective"></p><div id="lab-flow" class="attack-flow"></div><p id="lab-evidence" class="evidence"></p><p class="lab-source"><a id="lab-source" target="_blank" rel="noopener noreferrer"></a><span id="lab-source-location"></span></p></div>
+        <details class="lab-hints"><summary>Progressive hints & the trust boundary</summary><p id="lab-boundary"></p><ol id="lab-hints"></ol><p id="lab-lesson"></p></details>
+        <div id="brochure-editor"><label for="brochure-input" id="attack-label">External hotel partner brochure · untrusted content</label><textarea id="brochure-input" rows="5" maxlength="6000"></textarea><div class="editor-actions"><button id="save-brochure" class="secondary">Save attack content</button><button id="example-payload" class="text-button">Load guided payload</button><span id="lab-marker" class="muted small"></span></div></div>
+        <div id="lab-lifecycle" class="editor-actions"><button id="next-conversation" class="secondary" hidden>Start a new conversation</button><button id="approve-manifest" class="secondary" hidden>Approve benign version 1</button><button id="mutate-manifest" class="secondary" hidden>Apply version 2</button><span id="lifecycle-status" class="muted small"></span></div>
+        <div class="lab-actions"><button id="attempt-challenge" class="primary">Attempt challenge →</button><button id="guided-attempt" class="secondary">Run guided demo</button><button id="reset-lab" class="secondary">Reset with fresh fixtures</button><span class="muted small">Challenge mode leaves the prompt to you. Guided mode supplies a reliable stage-demo prompt.</span></div>
         <p class="small muted">Postcards are local captures. Only fictional .example addresses and fixture data are supported.</p>
       </div>
     </section>
@@ -56,11 +57,11 @@
           <div class="conversation-head"><div class="agent-avatar" aria-hidden="true">p.</div><div><h2 id="chat-title">Your travel companion</h2><p id="mode-description" class="small muted">Connecting…</p></div><label class="mode-select"><span class="sr-only">Agent mode</span><select id="mode"><option value="demo">Scripted demo</option><option value="ai">AI agent</option></select></label></div>
           <div id="messages" class="messages" role="log" aria-label="Conversation" aria-live="polite"></div>
           <div class="prompt-chips"><button data-prompt="Research my current trip. Look up my traveler preferences, search options, read hotel details, and recommend the best fit. Keep the dates and budget in my brief.">Research & recommend</button><button data-prompt="Show my reservations and current trip status.">Check my reservations</button></div>
-          <div class="chat-permissions"><label class="check-label"><input type="checkbox" id="allow-notes"><span>Allow the agent to save planning notes for this message</span></label><span id="ai-proof" class="muted small">No model requests recorded for this trip.</span></div>
+          <div class="chat-status"><span id="ai-proof" class="muted small">No model requests recorded for this trip.</span></div>
           <form id="chat-form" class="chat-compose"><label for="chat-input" class="sr-only">Message your travel agent</label><textarea id="chat-input" rows="1" maxlength="4000" placeholder="Tell me about the trip you have in mind…" required></textarea><button type="submit" class="send-button" aria-label="Send message">↑</button></form>
         </section>
 
-        <section id="planning-panel" class="planning panel" hidden aria-labelledby="planning-title"><div class="section-kicker">THE AGENT’S PLAN</div><h2 id="planning-title">Research that leads somewhere.</h2><div id="recommendation"></div><div id="planning-notes"></div><div id="outbox"></div></section>
+        <section id="planning-panel" class="planning panel" hidden aria-labelledby="planning-title"><div class="section-kicker">THE AGENT’S PLAN</div><h2 id="planning-title">Research that leads somewhere.</h2><div id="recommendation"></div><div id="planning-notes"></div><div id="outbox"></div><div id="lab-effects"></div></section>
 
         <details class="model-trace panel" id="model-trace"><summary><strong>Model execution trace</strong><span id="run-count" class="muted small">0 runs</span></summary><p class="muted small">Actual model requests, tool arguments, and returned data. This is an execution record, not private model reasoning.</p><div id="model-runs"></div></details>
 

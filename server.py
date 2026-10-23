@@ -112,9 +112,11 @@ def make_server(host, port, db_path):
                     elif action == "search":
                         state = store.search(trip_id)
                     elif action == "chat":
-                        state = agent.respond(trip_id, body.get("message"), body.get("mode", "demo"), body.get("allow_notes", False))
-                    elif action == "brochure":
+                        state = agent.respond(trip_id, body.get("message"), body.get("mode", "demo"))
+                    elif action in ("brochure", "attack"):
                         state = lab.edit_brochure(trip_id, body.get("text"))
+                    elif action in ("conversation", "approve-manifest", "mutate-manifest"):
+                        state = lab.transition(trip_id, action)
                     elif action == "book":
                         if body.get("approved") is not True:
                             raise RuleError("Explicit approval is required before booking.")

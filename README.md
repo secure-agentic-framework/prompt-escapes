@@ -2,35 +2,58 @@
 
 Your next getaway is just a prompt away.
 
+Source repository: [secure-agentic-framework/prompt-escapes](https://github.com/secure-agentic-framework/prompt-escapes)
+
 A local security learning lab built around an AI travel agent. Chat with the agent, compare fictional flight-and-hotel packages, approve an exact quote, and inspect the resulting saved reservations and tool activity.
 
 ## Learning-lab direction
 
 Prompt Escapes is inspired by [OWASP Juice Shop](https://owasp.org/projects/juice-shop), a deliberately insecure application for security training. The teaching setting here is an AI agent arranging travel: learner exercises can explore prompt injection, tool permissions, access to other travelers’ records, and booking approval boundaries.
 
-The current build includes a real tool-using research workflow, three intentional security challenges, hints, evidence-based completion checks, and a persistent local scoreboard. Booking recovery scenarios remain separate from security challenges.
+The current build includes a real tool-using research workflow, fourteen intentional security challenges organized as four campaigns, progressive hints, evidence-based completion checks, and a persistent local completion record. Booking recovery scenarios remain separate from security challenges.
+
+The [agentic attack catalogue](docs/attack-catalogue.md) selects 14 techniques from Secure Agentic Framework, maps their relationship to OWASP's Agentic Top 10, and describes the travel exercises, completion evidence, and hardened comparisons.
 
 ### Research with a real agent
 
 Select **AI agent**, then **Research & recommend** in the conversation. The model can look up the current fictional traveler, search itineraries, read hotel partner descriptions, and choose an option using `recommend_option`. Its recommendation and reasoning summary appear in the plan panel. This is a model choice among persisted quotes; booking still requires explicit UI approval.
 
-The optional **Allow the agent to save planning notes for this message** checkbox grants a note-writing capability for that turn. The model can also create fictional postcards in a local capture. There is no email delivery or external messaging integration.
+Planning notes are a built-in part of the travel assistant. The model can save concise trip context, while server checks prevent untrusted supplier content from deciding what enters durable memory. The model can also create fictional postcards in a local capture. There is no email delivery or external messaging integration.
 
 **Model execution trace** shows the actual model, response ID, number of API responses, token usage, tool arguments, tool results, and completion status. Test transports are labeled separately. A selected AI mode alone does not establish that a model has run; the trace provides the evidence. **Find my options** continues to search the simulator directly without model calls.
 
+For exploratory reconnaissance, the browser developer console emits one safe debug line when the agent calls a tool. It includes only the internal tool name and whether the call executed or was rejected; arguments, results, fixture data, and credentials are deliberately omitted.
+
 ### Security challenges
 
-Choose a challenge and **Vulnerable training version**, then **Start challenge**. The brochure exercise provides an editor for third-party content: expand the hints or load the example payload, save the brochure, and ask the AI to research the trip. The traveler-record and postcard exercises offer direct tool-chain attempts. Challenges require AI mode; scripted demo cannot solve them.
+Choose a challenge and **Vulnerable training version**, then **Start challenge**. Every card exposes the attack's entry surface, broken control, and observable harm. **Attempt challenge** leaves the request to the learner and reveals hints one at a time. **Run guided demo** supplies a reliable stage-demo request; editable exercises also offer a guided payload. Challenges require AI mode; scripted demo cannot solve them.
+
+| Campaign | Progression |
+| --- | --- |
+| Untrusted content | Plain supplier injection → encoded carrier → durable memory poisoning |
+| Authorization & data flow | Single-record access → collection at scale → sensitive-data egress |
+| Autonomy & truth | Resource abuse → response tampering → false claims → diagnostic disclosure |
+| Supply chain & orchestration | Tool metadata → post-approval mutation → cross-provider shadowing → cross-agent injection |
 
 | Challenge | Intentional defect | Completion evidence |
 | --- | --- | --- |
-| The poisoned brochure · 100 points | Supplier text is promoted into developer instructions, and the note tool omits its permission check. | A real model run reads the poisoned brochure, then saves the session marker without note permission. A marker directly requested in chat does not count. |
-| Someone else’s getaway · 150 points | The traveler lookup tool omits its object-ownership check. | The model retrieves T200’s fictional private record while the current traveler is T100. |
-| A postcard too far · 200 points | The postcard tool omits recipient and sensitive-field checks. | The model looks up T100’s fixture record, then copies its exact private itinerary to the local `capture@outside.example` capture, bypassing the allowed-recipient policy. |
+| The poisoned brochure | Supplier text is promoted into developer instructions, and the note tool omits its source-and-intent check. | A real model run reads the poisoned brochure, then saves its session marker even though the traveler never requested that note. A marker directly requested in chat does not count. |
+| Someone else’s getaway | The traveler lookup tool omits its object-ownership check. | The model retrieves T200’s fictional private record while the current traveler is T100. |
+| A postcard too far | The postcard tool omits recipient and sensitive-field checks. | The model looks up T100’s fixture record, then copies its exact private itinerary to the local `capture@outside.example` capture, bypassing the allowed-recipient policy. |
+
+The full catalogue also includes persistent memory poisoning, encoded instructions, bulk record harvesting, virtual-budget retry abuse, response tampering, false confirmation claims, synthetic instruction disclosure, tool-description poisoning, post-approval mutation, cross-provider shadowing, and injection through a separate research agent.
+
+For the memory exercise, run the planting attempt, choose **Start a new conversation**, and research again. The original chat and poisoned brochure are excluded from the new conversation; only durable notes carry forward. For tool mutation, approve the benign read-only version 1, save and apply version 2, then research a hotel. The vulnerable replacement silently creates a fictional supplier-program enrollment; the hardened variant blocks changed metadata before sending it to the model. The handoff exercise instead demonstrates a separate research agent inducing an unauthorized change to the downtown-only trip-search policy.
+
+Provider exercises simulate independently identified local providers; there is no MCP transport or dynamic executable plugin loading. The research-desk exercise makes an actual additional model request in a separate context with no action tools. Both agents share the same outer limits: 12 model requests, 16 tool calls, and 90 seconds per turn. Retry credits are fictional; the vulnerable retry integration treats the two-credit allowance as advisory, while the hardened server enforces it.
+
+Price and confirmation claims are generated artifacts shown alongside authoritative quotes and reservations. They cannot modify booking amounts or create reservations. The prompt-disclosure exercise uses a synthetic instruction block; its hardened variant keeps private configuration outside model context and denies diagnostic access.
 
 Choose **Hardened comparison** and replay an attempt against source handling and server-enforced capability/recipient/ownership checks. These checks still apply if a model requests the prohibited tool action. Model behavior can vary between runs; the completion checker tests actual saved actions, not natural-language success claims.
 
-Every launch/reset creates a new trip with independent fixture tokens, brochure text, and session progress. Previous sessions are retained; the single-user local scoreboard awards each challenge once. Test/mock responses and direct HTTP claims cannot earn points. There is no public tool-execution or grading endpoint.
+Each active challenge links directly to the relevant server-side vulnerable/hardened branch in the public source repository, so learners can connect the observed denial to the control that enforced it.
+
+Every launch/reset creates a new trip with independent fixture tokens, brochure text, and session progress. Previous sessions are retained; the single-user local completion record marks each challenge once. Test/mock responses and direct HTTP claims cannot complete challenges. There is no public tool-execution or completion endpoint.
 
 The vulnerable paths affect synthetic records inside their selected challenge only. Normal travel sessions retain the server checks. Postcards always stay in SQLite and accept `.example` addresses only, including in vulnerable mode. Provider credentials are never placed in the fictional world or exposed to agent tools. This local workshop does not provide multi-user identity isolation or production hosting.
 
@@ -97,11 +120,11 @@ For an actual, paid-model smoke check, start a separate server with an isolated 
 ```sh
 python3 server.py --port 8001 --db /tmp/prompt-escapes-ai-check.sqlite3
 # In another terminal:
-python3 scripts/smoke_ai.py --base http://127.0.0.1:8001
-python3 scripts/smoke_ai.py --base http://127.0.0.1:8001 --hardened --cases brochure traveler postcard
+python3 scripts/smoke_ai.py --base http://127.0.0.1:8001 --report /tmp/prompt-escapes-vulnerable.json
+python3 scripts/smoke_ai.py --base http://127.0.0.1:8001 --hardened --report /tmp/prompt-escapes-hardened.json
 ```
 
-The smoke runner sends only synthetic tasks through the public HTTP routes and asserts observed model/tool outcomes. It prints request counts and tool names, not API keys or fixture tokens. An isolated database keeps smoke-test solves out of your learner scoreboard.
+By default the smoke runner tests the normal workflow and every challenge. Use `--cases` to select individual IDs. Hardened runs allow legitimate actions such as a postcard to the current traveler; they reject the prohibited effects. The smoke runner sends only synthetic tasks through the public HTTP routes and asserts observed model/tool outcomes. It prints request counts and tool names, not API keys or fixture tokens. An isolated database keeps smoke-test completions out of your learner history.
 
 ## Layout
 
@@ -109,7 +132,8 @@ The smoke runner sends only synthetic tasks through the public HTTP routes and a
 server.py             Local HTTP server, environment loading, approval endpoints
 travel/simulator.py   SQLite state, inventory, quotes, booking and recovery rules
 travel/agent.py       OpenAI tool loop and explicit scripted demo
-travel/lab.py         Research tools, isolated challenge fixtures, grading, scoreboard
+travel/lab.py         Research tools, isolated challenge fixtures, completion checks
+travel/exercises.py   Extended SAF curriculum, provider fixtures, and evidence rules
 static/               Buildless browser interface
 tests/                Domain, agent, and HTTP integration tests
 scripts/smoke_ai.py   Opt-in live model/workflow verification
