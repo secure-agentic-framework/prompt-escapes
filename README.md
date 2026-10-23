@@ -143,3 +143,7 @@ data/travel.sqlite3   Runtime state, created on launch and ignored by Git
 This is a single-user local prototype. It binds only to `127.0.0.1`, uses a per-process request token and Host checks, and serves no API keys to the browser. SQLite includes chat and reservation history in plain text; use fictional traveler details. It is not prepared for public deployment or multiple untrusted users. Starting a new trip retains older trips in the database; the browser restores only the most recently opened one.
 
 Use `python3 server.py --port 8001` for another port, or `--db /path/to/test.sqlite3` for an isolated database.
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE).
